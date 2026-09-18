@@ -202,7 +202,7 @@ class MatchEngine {
 
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[row].length; col++) {
-                int neighbors = GridFunctions.getNeighbors(row, col, before);
+                int neighbors = GridFunctions.getNeighbors(before, row, col);
 
                 if (before.getCell(row, col) != -1) {
                     if (neighbors < 2 || neighbors > 3) {

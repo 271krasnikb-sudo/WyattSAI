@@ -12,11 +12,11 @@ public class MyAI extends CellAI {
 
     @Override
     public String getAIName() {
-        return "MyAI - CHANGE ME";
+        return "WYATTSAI";
     }
 
     @Override
-    public Location select(Grid grid) {
+        public Location select(Grid grid) {
         /*
          * Replace this starter strategy.
          *
@@ -29,6 +29,44 @@ public class MyAI extends CellAI {
          *   GridFunctions.mostCommonNeighbor -> most common neighboring AI
          *   randomInt(bound)            -> reproducible random integer
          */
+       while(true) {
+            Location attack = attack(grid);
+            if(attack != null) {
+                return attack;
+            }
+            Location defend = defend(grid);
+            if(defend != null) {
+                return defend;
+            }
+            attack = attack(grid);
+            if(attack != null) {
+                return attack;
+            }
+
+        }
+    }
+
+    public Location defend(Grid grid) {
+        for (int r = 1; r < grid.getRows()-1; r++) {
+            for (int c = 1; c < grid.getCols()-1; c++) {
+                if(grid.getCell(r, c) == -1  && grid.getCell(r-1, c) == super.getID() && grid.getCell(r+1, c) == super.getID() && grid.getCell(r, c-1) == super.getID() && grid.getCell(r, c+1) == super.getID() && GridFunctions.getNeighbors(grid, r, c) == 2   ) {
+                    return new Location(r, c);
+                }
+            }
+        }
+        return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
+    }
+
+    public Location attack(Grid grid) {
+        for (int r = 1; r < grid.getRows()-1; r++) {
+            for (int c = 1; c < grid.getCols()-1; c++) {
+                if(grid.getCell(r, c) != -1  && grid.getCell(r-1, c) != super.getID() && grid.getCell(r+1, c) != super.getID() && grid.getCell(r, c-1) != super.getID() && grid.getCell(r, c+1) != super.getID()&& GridFunctions.getNeighbors(grid, r, c) == 2   ) {
+                    return new Location(r, c);
+                }
+            }
+        }
         return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
     }
 }
+    
+    
