@@ -8,7 +8,7 @@
  * Replace this comment with a short explanation of the strategy your AI uses.
  * Your final strategy must be fundamentally different from the sample AIs.
  */
-public class MyAI extends CellAI {
+public class WyattSAI extends CellAI {
 
     @Override
     public String getAIName() {
