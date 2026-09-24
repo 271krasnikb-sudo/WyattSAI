@@ -59,7 +59,7 @@ public final class GridFunctions {
     }
 
     /** Returns the number of living neighbors around (row, col). */
-    public static int getNeighbors(Grid grid, int col, int row) {
+    public static int getNeighbors(Grid grid, int row, int col) {
         int alive = 0;
 
         for (int r = row - 1; r <= row + 1; r++) {

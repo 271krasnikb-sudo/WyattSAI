@@ -30,43 +30,80 @@ public class WyattSAI extends CellAI {
          *   randomInt(bound)            -> reproducible random integer
          */
        while(true) {
-            Location attack = attack(grid);
-            if(attack != null) {
-                return attack;
-            }
+        
+        int rand = (int)(Math.random() * 2) +1 ;
+
+        if(rand == 1) {
             Location defend = defend(grid);
             if(defend != null) {
                 return defend;
             }
-            attack = attack(grid);
+        } else {
+             Location attack = attack(grid);
             if(attack != null) {
                 return attack;
             }
-
         }
+    }
     }
 
     public Location defend(Grid grid) {
-        for (int r = 1; r < grid.getRows()-1; r++) {
-            for (int c = 1; c < grid.getCols()-1; c++) {
-                if(grid.getCell(r, c) == -1  && grid.getCell(r-1, c) == super.getID() && grid.getCell(r+1, c) == super.getID() && grid.getCell(r, c-1) == super.getID() && grid.getCell(r, c+1) == super.getID() && GridFunctions.getNeighbors(grid, r, c) == 2   ) {
-                    return new Location(r, c);
-                }
-            }
+        if(BuildStillLife(grid) != null) {
+            return BuildStillLife(grid);
         }
         return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
     }
 
     public Location attack(Grid grid) {
-        for (int r = 1; r < grid.getRows()-1; r++) {
-            for (int c = 1; c < grid.getCols()-1; c++) {
-                if(grid.getCell(r, c) != -1  && grid.getCell(r-1, c) != super.getID() && grid.getCell(r+1, c) != super.getID() && grid.getCell(r, c-1) != super.getID() && grid.getCell(r, c+1) != super.getID()&& GridFunctions.getNeighbors(grid, r, c) == 2   ) {
-                    return new Location(r, c);
-                }
-            }
+       if(checkTheirStillLife(grid) != null) {
+            return checkTheirStillLife(grid);
         }
         return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
     }
+
+
+    
+
+    public Location checkTheirStillLife(Grid Grid){
+        for (int r = 1; r < Grid.getRows()-1; r++) {
+            for (int c = 1; c < Grid.getCols()-1; c++) {
+                if(Grid.getCell(r, c) != super.getID() && Grid.getCell(r, c) != -1 && Grid.getCell(r+1, c) != super.getID() && Grid.getCell(r+1, c) != -1 && GridFunctions.getNeighbors(Grid, r, c) == 2   ) {
+                    if(GridFunctions.getNeighbors(Grid, r, c) == 3 && GridFunctions.getNeighbors(Grid, r+1, c) == 3 && GridFunctions.getNeighbors(Grid, r, c+1) == 3 && GridFunctions.getNeighbors(Grid, r+1, c+1) == 3) {
+                        return new Location(r-1, c);
+                    }
+                    
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public Location BuildStillLife(Grid Grid){
+        for (int r = 1; r < Grid.getRows()-1; r++) {
+            for (int c = 1; c < Grid.getCols()-1; c++) {
+                if(Grid.getCell(r, c) == super.getID() && Grid.getCell(r+1, c) == super.getID() ) {
+                    if(GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r+1, c) == 1) {
+                        if (Grid.getCell(r, c-1) == -1) {
+                            return new Location(r, c-1);
+                        }
+                    }
+                    
+                } 
+                if(Grid.getCell(r, c) == super.getID() && Grid.getCell(r, c+1) == super.getID() ) {
+                    if(GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r, c+1) == 1) {
+                        if (Grid.getCell(r-1, c) == -1) {
+                            return new Location(r-1, c);
+                        }
+                    }
+                    
+                }
+            }
+        }
+        return attack(Grid);
+    }
+
+
 }
     
     
