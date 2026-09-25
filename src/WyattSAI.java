@@ -29,81 +29,132 @@ public class WyattSAI extends CellAI {
          *   GridFunctions.mostCommonNeighbor -> most common neighboring AI
          *   randomInt(bound)            -> reproducible random integer
          */
-       while(true) {
-        
+         Location beeHive = fillBeeHive(grid);
+         if(beeHive != null) {
+            return beeHive;
+         }
         int rand = (int)(Math.random() * 2) +1 ;
 
         if(rand == 1) {
             Location defend = defend(grid);
-            if(defend != null) {
                 return defend;
-            }
+            
         } else {
              Location attack = attack(grid);
-            if(attack != null) {
                 return attack;
-            }
         }
-    }
     }
 
     public Location defend(Grid grid) {
         if(BuildStillLife(grid) != null) {
             return BuildStillLife(grid);
         }
-        return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
+        return attack(grid);
     }
 
     public Location attack(Grid grid) {
        if(checkTheirStillLife(grid) != null) {
             return checkTheirStillLife(grid);
         }
-        return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
+        for (int r = 0; r < grid.getRows(); r++) {
+            for (int c = 0; c < grid.getCols(); c++) {
+                if (isEnemy(grid, r, c) && GridFunctions.getNeighbors(grid, r, c) >= 2) {
+                    return new Location(r, c);
+                }
+            }
+        }
+
+        for (int r = 0; r < grid.getRows(); r++) {
+            for (int c = 0; c < grid.getCols(); c++) {
+                if (isEnemy(grid, r, c)) {
+                    return new Location(r, c);
+                }
+            }
+        }
+
+       return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
     }
 
 
     
 
     public Location checkTheirStillLife(Grid Grid){
+        int me = super.getID();
         for (int r = 1; r < Grid.getRows()-1; r++) {
-            for (int c = 1; c < Grid.getCols()-1; c++) {
-                if(Grid.getCell(r, c) != super.getID() && Grid.getCell(r, c) != -1 && Grid.getCell(r+1, c) != super.getID() && Grid.getCell(r+1, c) != -1 && GridFunctions.getNeighbors(Grid, r, c) == 2   ) {
+            for (int c = 0; c < Grid.getCols()-1; c++) {
+                if(isEnemy(Grid, r, c) && isEnemy(Grid, r+1, c) && isEnemy(Grid, r, c+1) && isEnemy(Grid, r+1, c+1)) {
                     if(GridFunctions.getNeighbors(Grid, r, c) == 3 && GridFunctions.getNeighbors(Grid, r+1, c) == 3 && GridFunctions.getNeighbors(Grid, r, c+1) == 3 && GridFunctions.getNeighbors(Grid, r+1, c+1) == 3) {
+                        if(r>0){
                         return new Location(r-1, c);
+                        } else {
+                            return new Location(r+2, c);
+                        }
+
                     }
-                    
-                }
+                    }
             }
         }
         return null;
     }
 
 
-    public Location BuildStillLife(Grid Grid){
-        for (int r = 1; r < Grid.getRows()-1; r++) {
-            for (int c = 1; c < Grid.getCols()-1; c++) {
-                if(Grid.getCell(r, c) == super.getID() && Grid.getCell(r+1, c) == super.getID() ) {
-                    if(GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r+1, c) == 1) {
-                        if (Grid.getCell(r, c-1) == -1) {
-                            return new Location(r, c-1);
-                        }
+    public Location BuildStillLife(Grid Grid) {
+        int me = super.getID();
+            for (int r = 1; r < Grid.getRows() - 1; r++) {
+                for (int c = 1; c < Grid.getCols() - 1; c++) {
+                    if (Grid.getCell(r, c) == me && Grid.getCell(r + 1, c) == me && GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r + 1, c) == 1 && Grid.getCell(r, c - 1) == -1 && Grid.getCell(r + 1, c - 1) == -1 && GridFunctions.getNeighbors(Grid, r, c - 1) == 2 && GridFunctions.getNeighbors(Grid, r + 1, c - 1) == 2) {
+                        return new Location(r, c - 1);
                     }
-                    
-                } 
-                if(Grid.getCell(r, c) == super.getID() && Grid.getCell(r, c+1) == super.getID() ) {
-                    if(GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r, c+1) == 1) {
-                        if (Grid.getCell(r-1, c) == -1) {
-                            return new Location(r-1, c);
-                        }
+                    if (Grid.getCell(r, c) == me && Grid.getCell(r, c + 1) == me && GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r, c + 1) == 1 && Grid.getCell(r - 1, c) == -1 && Grid.getCell(r - 1, c + 1) == -1 && GridFunctions.getNeighbors(Grid, r - 1, c) == 2 && GridFunctions.getNeighbors(Grid, r - 1, c + 1) == 2) {
+                        return new Location(r - 1, c);
                     }
-                    
                 }
             }
+        return null;
         }
-        return attack(Grid);
+
+
+        public boolean isEnemy(Grid grid, int r, int c) {
+                int me = super.getID();
+                if (grid.getCell(r, c) != me && grid.getCell(r, c) != -1) {
+                    return true;
+                }
+                return false;
+            }
+
+        public Location fillBeeHive(Grid grid) {
+            int me = super.getID();
+            for(int r = 0; r < grid.getRows(); r++) {
+                for (int c = 0; c < grid.getCols(); c++) {
+                    if(r+ 3 < grid.getRows() && c> 0 && c + 1< grid.getCols() && hiveCellCheck(grid, r, c, me) && hiveCellCheck(grid, r+1, c-1, me) && hiveCellCheck(grid, r+1, c+1, me) && hiveCellCheck(grid, r+2, c+1, me) && hiveCellCheck(grid, r+2, c-1, me)&& hiveCellCheck(grid, r+3, c, me) && grid.getCell(r+1, c) == -1 && grid.getCell(r+2, c) == -1) {
+                        return new Location(r+1, c);
+                    }
+
+
+                     if(c+ 3 < grid.getCols() && r> 0 && r+ 1< grid.getRows() && hiveCellCheck(grid, r, c, me) && hiveCellCheck(grid, r-1, c+1, me) && hiveCellCheck(grid, r+1, c+1, me) && hiveCellCheck(grid, r+1, c+2, me) && hiveCellCheck(grid, r-1, c+2, me)&& hiveCellCheck(grid, r, c+3, me) && grid.getCell(r, c+1) == -1 && grid.getCell(r, c+2) == -1) {
+                        return new Location(r, c+1);
+                    }
+                        
+                }
+            }
+
+            
+            return null;
+        
+        }
+
+        public boolean hiveCellCheck(Grid grid, int r, int c, int me) {
+            if (grid.getCell(r, c) == me && GridFunctions.getNeighbors(grid, r, c) == 2 ) {
+                return true;
+            }
+            return false;
+        }
     }
 
 
-}
+
+
+
+
     
     
