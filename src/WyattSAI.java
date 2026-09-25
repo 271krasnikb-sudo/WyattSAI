@@ -1,12 +1,14 @@
 /**
  * STUDENT FILE
  *
- * Name: ______________________________
- * AI Code Name: ______________________
+ * Name: Ben Krasnik
+ * AI Code Name: WYATTSAI
  *
  * Strategy Description:
- * Replace this comment with a short explanation of the strategy your AI uses.
- * Your final strategy must be fundamentally different from the sample AIs.
+ Offense: My ai will originally attack still life squares because this is a 4 for 1 trade off
+ if it doesn't find any still life squares it will attack the enemy with the most amount of profit
+    Defense: My ai will try to build a still life, it will orginally try to fill a beehive as it is the most profitable move in the game(that I can thought of or tested)
+    if there are no beehives it will look for a still life to build, if it can't find one it will attack the enemy 
  */
 public class WyattSAI extends CellAI {
 
@@ -56,23 +58,52 @@ public class WyattSAI extends CellAI {
        if(checkTheirStillLife(grid) != null) {
             return checkTheirStillLife(grid);
         }
+        int me = super.getID();
+        Location best = null;
+        int bestScore = -100;
         for (int r = 0; r < grid.getRows(); r++) {
             for (int c = 0; c < grid.getCols(); c++) {
-                if (isEnemy(grid, r, c) && GridFunctions.getNeighbors(grid, r, c) >= 2) {
-                    return new Location(r, c);
+               if(isEnemy(grid, r, c)) {
+                    int score = killScore(grid, r, c);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        best = new Location(r, c);
+                    }
+
                 }
             }
         }
 
-        for (int r = 0; r < grid.getRows(); r++) {
-            for (int c = 0; c < grid.getCols(); c++) {
-                if (isEnemy(grid, r, c)) {
-                    return new Location(r, c);
-                }
-            }
+        if (best != null) {
+            return best;
         }
+
+        
 
        return new Location(randomInt(grid.getRows()), randomInt(grid.getCols()));
+    }
+
+
+    public int killScore(Grid grid, int r, int c) {
+        int score = 0;
+        if(GridFunctions.getNeighbors(grid, r, c) == 3 || GridFunctions.getNeighbors(grid, r, c) == 2) {
+            score += 1;
+        }
+        for(int i = r-1; i <= r+1; i++) {
+            for(int j = c-1; j <= c+1; j++) {
+                if(i< 0 || j < 0 || i >= grid.getRows() || j >= grid.getCols()|| (i == r && j == c)) {
+                    continue;
+                }
+                if(grid.getCell(i, j) != -1 && GridFunctions.getNeighbors(grid, i, j) == 2) {
+                    if(grid.getCell(i, j) == super.getID()) {
+                        score -= 1;
+                    } else {
+                        score += 1;
+                    }
+                }
+            }
+        }
+        return score;
     }
 
 
@@ -80,7 +111,7 @@ public class WyattSAI extends CellAI {
 
     public Location checkTheirStillLife(Grid Grid){
         int me = super.getID();
-        for (int r = 1; r < Grid.getRows()-1; r++) {
+        for (int r = 0; r < Grid.getRows()-1; r++) {
             for (int c = 0; c < Grid.getCols()-1; c++) {
                 if(isEnemy(Grid, r, c) && isEnemy(Grid, r+1, c) && isEnemy(Grid, r, c+1) && isEnemy(Grid, r+1, c+1)) {
                     if(GridFunctions.getNeighbors(Grid, r, c) == 3 && GridFunctions.getNeighbors(Grid, r+1, c) == 3 && GridFunctions.getNeighbors(Grid, r, c+1) == 3 && GridFunctions.getNeighbors(Grid, r+1, c+1) == 3) {
@@ -100,8 +131,8 @@ public class WyattSAI extends CellAI {
 
     public Location BuildStillLife(Grid Grid) {
         int me = super.getID();
-            for (int r = 1; r < Grid.getRows() - 1; r++) {
-                for (int c = 1; c < Grid.getCols() - 1; c++) {
+            for (int r = 0; r < Grid.getRows() - 1; r++) {
+                for (int c = 0; c < Grid.getCols() - 1; c++) {
                     if (Grid.getCell(r, c) == me && Grid.getCell(r + 1, c) == me && GridFunctions.getNeighbors(Grid, r, c) == 1 && GridFunctions.getNeighbors(Grid, r + 1, c) == 1 && Grid.getCell(r, c - 1) == -1 && Grid.getCell(r + 1, c - 1) == -1 && GridFunctions.getNeighbors(Grid, r, c - 1) == 2 && GridFunctions.getNeighbors(Grid, r + 1, c - 1) == 2) {
                         return new Location(r, c - 1);
                     }
